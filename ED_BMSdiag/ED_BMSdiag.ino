@@ -274,7 +274,7 @@ unsigned int Request_Diagnostics(const byte* rqQuery){
 //--------------------------------------------------------------------------------
 unsigned int Get_RequestResponse(){ 
     
-    int i;
+    byte i;
     unsigned int items = 0;
     byte FC_length = rqFlowControl[1];    
     boolean fDataOK = false;
@@ -336,7 +336,7 @@ unsigned int Get_RequestResponse(){
 boolean Read_FC_Response(int items){   
     CAN_Timeout.Reset();
     
-    int i;
+    byte i;
     int n = 7;
     int FC_count = 0;
     byte FC_length = rqFlowControl[1];
@@ -387,7 +387,7 @@ void PrintReadBuffer(unsigned int lines) {
   Serial.println(lines);
   for(int i = 0; i < lines; i++) {
       Serial.print(F("Data: "));
-      for(int n = 0; n < 7; n++)               // Print each byte of the data.
+      for(byte n = 0; n < 7; n++)               // Print each byte of the data.
       {
         if(data[n + 7 * i] < 0x10)             // If data byte is less than 0x10, add a leading zero.
         {
@@ -405,7 +405,7 @@ void PrintReadBuffer(unsigned int lines) {
 //--------------------------------------------------------------------------------
 void ClearReadBuffer(){
   if(!digitalRead(2)) {                        // still messages? pin 2 is LOW, clear the two rxBuffers by reading
-    for (int i = 1; i <= 2; i++) {
+    for (byte i = 1; i <= 2; i++) {
       CAN0.readMsgBuf(&rxID, &len, rxBuf);
     }
     DEBUG_UPDATE(F("Buffer cleared!\n\r"));
@@ -813,7 +813,7 @@ boolean ReadSOCinternal() {
     if(!digitalRead(2)) {
       CAN0.readMsgBuf(&rxID, &len, rxBuf); 
         if (rxID == 0x2D5) {
-          BattDiag.realSOC =  (unsigned int) rxBuf[4] * 256 + (unsigned int) rxBuf[5];
+          BattDiag.realSOC =  (unsigned int) (rxBuf[4] & 0x03) * 256 + (unsigned int) rxBuf[5];
           return true;
         }
     }
@@ -921,8 +921,8 @@ boolean ReadTime() {
     if(!digitalRead(2)) {
       CAN0.readMsgBuf(&rxID, &len, rxBuf); 
         if (rxID == 0x512) {
-          BattDiag.hour = (unsigned int) rxBuf[0];
-          BattDiag.minutes = (unsigned int) rxBuf[1];
+          BattDiag.hour = rxBuf[0];
+          BattDiag.minutes = rxBuf[1];
           return true;
         }
     }
@@ -944,7 +944,7 @@ void loop()
    delay(500);
    
    //Read CAN-messages 
-   int testStep = 0;
+   byte testStep = 0;
    do {
       switch (testStep) {
         case 0:
@@ -1097,9 +1097,9 @@ void loop()
       }
       Serial.println(SPACER);
       Serial.println(F("Temperatures Battery-Unit /degC: "));
-      for (int n = 0; n < 9; n = n + 3) {
+      for (byte n = 0; n < 9; n = n + 3) {
         Serial.print(F("module ")); Serial.print((n / 3) + 1); Serial.print(F(": "));
-        for (int i = 0; i < 3; i++) {          
+        for (byte i = 0; i < 3; i++) {          
           Serial.print((float) BattDiag.Temps[n + i] / 64, 1);
           if ( i < 2) {
             Serial.print(F(", "));
