@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------
-// ED BMSdiag, v0.38
+// ED BMSdiag, v0.39
 // Retrieve battery diagnostic data from your smart electric drive EV.
 //
 // (c) 2016 by MyLab-odyssey
@@ -23,7 +23,7 @@
 //! \brief   compatible hardware.
 //! \date    2016-June
 //! \author  My-Lab-odyssey
-//! \version 0.38
+//! \version 0.39
 //--------------------------------------------------------------------------------
 
 //#define DO_DEBUG_UPDATE        //!< Uncomment to show DEBUG output
@@ -42,7 +42,7 @@
 #include <Average.h>
 
 //Global definitions
-#define VERSION F("0.38")
+#define VERSION F("0.39")
 #define DATALENGTH 440
 #define CELLCOUNT 93
 #define SPACER F("-----------------------------------------")
@@ -129,23 +129,23 @@ unsigned char len = 0;
 unsigned char rxLength = 0;
 unsigned char rxBuf[8];
 byte rqFC_length = 8;            //!< Interval to send flow control messages (rqFC) 
-unsigned char rqFlowControl[8]               = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattHWrev[8]                 = {0x03, 0x22, 0xF1, 0x50, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattSWrev[8]                 = {0x03, 0x22, 0xF1, 0x51, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattTemperatures[8]          = {0x03, 0x22, 0x02, 0x01, 0xFF, 0xFF, 0xFF, 0xFF}; 
-unsigned char rqBattModuleTemperatures[8]    = {0x03, 0x22, 0x02, 0x02, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattHVstatus[8]              = {0x03, 0x22, 0x02, 0x04, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattADCref[8]                = {0x03, 0x22, 0x02, 0x07, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattVolts[8]                 = {0x03, 0x22, 0x02, 0x08, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattIsolation[8]             = {0x03, 0x22, 0x02, 0x09, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattAmps[8]                  = {0x03, 0x22, 0x02, 0x03, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattDate[8]                  = {0x03, 0x22, 0x03, 0x04, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattCapInit[8]               = {0x03, 0x22, 0x03, 0x05, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattCapLoss[8]               = {0x03, 0x22, 0x03, 0x09, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattCapacity[8]              = {0x03, 0x22, 0x03, 0x10, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattHVContactorCyclesLeft[8] = {0x03, 0x22, 0x03, 0x0B, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattHVContactorMax[8]        = {0x03, 0x22, 0x03, 0x0C, 0xFF, 0xFF, 0xFF, 0xFF};
-unsigned char rqBattHVContactorState[8]      = {0x03, 0x22, 0xD0, 0x00, 0xFF, 0xFF, 0xFF, 0xFF};
+unsigned char rqFlowControl[8]                             = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+const PROGMEM unsigned char rqBattHWrev[4]                 = {0x03, 0x22, 0xF1, 0x50};
+const PROGMEM unsigned char rqBattSWrev[4]                 = {0x03, 0x22, 0xF1, 0x51};
+const PROGMEM unsigned char rqBattTemperatures[4]          = {0x03, 0x22, 0x02, 0x01}; 
+const PROGMEM unsigned char rqBattModuleTemperatures[4]    = {0x03, 0x22, 0x02, 0x02};
+const PROGMEM unsigned char rqBattHVstatus[4]              = {0x03, 0x22, 0x02, 0x04};
+const PROGMEM unsigned char rqBattADCref[4]                = {0x03, 0x22, 0x02, 0x07};
+const PROGMEM unsigned char rqBattVolts[4]                 = {0x03, 0x22, 0x02, 0x08};
+const PROGMEM unsigned char rqBattIsolation[4]             = {0x03, 0x22, 0x02, 0x09};
+const PROGMEM unsigned char rqBattAmps[4]                  = {0x03, 0x22, 0x02, 0x03};
+const PROGMEM unsigned char rqBattDate[4]                  = {0x03, 0x22, 0x03, 0x04};
+const PROGMEM unsigned char rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};
+const PROGMEM unsigned char rqBattCapLoss[4]               = {0x03, 0x22, 0x03, 0x09};
+const PROGMEM unsigned char rqBattCapacity[4]              = {0x03, 0x22, 0x03, 0x10};
+const PROGMEM unsigned char rqBattHVContactorCyclesLeft[4] = {0x03, 0x22, 0x03, 0x0B};
+const PROGMEM unsigned char rqBattHVContactorMax[4]        = {0x03, 0x22, 0x03, 0x0C};
+const PROGMEM unsigned char rqBattHVContactorState[4]      = {0x03, 0x22, 0xD0, 0x00};
 
 #define CS     10                //!< chip select pin of MCP2515 CAN-Controller
 #define CS_SD  8                 //!< CS for SD card, if you plan to use a logger...
@@ -197,7 +197,7 @@ void setup()
 //--------------------------------------------------------------------------------
 //! \brief   Memory available between Heap and Stack
 //--------------------------------------------------------------------------------
-int freeRam () {
+int getFreeRam () {
   extern int __heap_start, *__brkval; 
   int v; 
   return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
@@ -207,7 +207,7 @@ int freeRam () {
 //! \brief   Wait for serial data to be avaiable.
 //--------------------------------------------------------------------------------
 void WaitforSerial() {
-  Serial.println(F("Press a key to start query:"));
+  Serial.println(F("Press ENTER to start query:"));
   while (!Serial.available()) {}                  // Wait for serial input to start
 }
 
@@ -253,14 +253,17 @@ void setCAN_Filter(unsigned long filter){
 //! \see     rqBattADCref ... rqBattVolts
 //! \return  received items count (unsigned int) of function #Get_RequestResponse
 //--------------------------------------------------------------------------------
-unsigned int Request_Diagnostics(unsigned char* rqQuery){  
+unsigned int Request_Diagnostics(const unsigned char* rqQuery){  
+  unsigned char rqMsg[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  memcpy_P(rqMsg, rqQuery, 4 * sizeof(unsigned char)); // Fill byte 01 to 04 of rqMsg with rqQuery content (from PROGMEM)
+  
   CAN_Timeout.Reset();                          // Reset Timeout-Timer
   
   digitalWrite(CS_SD, HIGH);                    // Disable SD card, or other SPI devices if nessesary
   
   //--- Diag Request Message ---
   DEBUG_UPDATE(F("Send Diag Request\n\r"));
-  CAN0.sendMsgBuf(0x7E7, 0, 8, rqQuery);        // send data: Request diagnostics data
+  CAN0.sendMsgBuf(0x7E7, 0, 8, rqMsg);        // send data: Request diagnostics data
   
   return Get_RequestResponse();                 // wait for response of first frame
 }
@@ -398,7 +401,7 @@ void PrintReadBuffer(unsigned int items) {
 }
 
 //--------------------------------------------------------------------------------
-//! \brief   Cleanup after switcheng filters
+//! \brief   Cleanup after switching filters
 //--------------------------------------------------------------------------------
 void ClearReadBuffer(){
   if(!digitalRead(2)) {                        // still messages? pin 2 is LOW, clear the two rxBuffers by reading
