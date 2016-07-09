@@ -51,7 +51,7 @@
 #define MSG_DOT F(".")
 
 //Data arrays
-unsigned int data[DATALENGTH]; 
+byte data[DATALENGTH]; 
 Average <unsigned int> CellVoltage(CELLCOUNT);
 Average <unsigned int> CellCapacity(CELLCOUNT);
 
@@ -125,27 +125,27 @@ typedef struct {
 
 //CAN-Bus declarations
 long unsigned int rxID;
-unsigned char len = 0;
-unsigned char rxLength = 0;
-unsigned char rxBuf[8];
+byte len = 0;
+byte rxLength = 0;
+byte rxBuf[8];
 byte rqFC_length = 8;            //!< Interval to send flow control messages (rqFC) 
-unsigned char rqFlowControl[8]                             = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-const PROGMEM unsigned char rqBattHWrev[4]                 = {0x03, 0x22, 0xF1, 0x50};
-const PROGMEM unsigned char rqBattSWrev[4]                 = {0x03, 0x22, 0xF1, 0x51};
-const PROGMEM unsigned char rqBattTemperatures[4]          = {0x03, 0x22, 0x02, 0x01}; 
-const PROGMEM unsigned char rqBattModuleTemperatures[4]    = {0x03, 0x22, 0x02, 0x02};
-const PROGMEM unsigned char rqBattHVstatus[4]              = {0x03, 0x22, 0x02, 0x04};
-const PROGMEM unsigned char rqBattADCref[4]                = {0x03, 0x22, 0x02, 0x07};
-const PROGMEM unsigned char rqBattVolts[4]                 = {0x03, 0x22, 0x02, 0x08};
-const PROGMEM unsigned char rqBattIsolation[4]             = {0x03, 0x22, 0x02, 0x09};
-const PROGMEM unsigned char rqBattAmps[4]                  = {0x03, 0x22, 0x02, 0x03};
-const PROGMEM unsigned char rqBattDate[4]                  = {0x03, 0x22, 0x03, 0x04};
-const PROGMEM unsigned char rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};
-const PROGMEM unsigned char rqBattCapLoss[4]               = {0x03, 0x22, 0x03, 0x09};
-const PROGMEM unsigned char rqBattCapacity[4]              = {0x03, 0x22, 0x03, 0x10};
-const PROGMEM unsigned char rqBattHVContactorCyclesLeft[4] = {0x03, 0x22, 0x03, 0x0B};
-const PROGMEM unsigned char rqBattHVContactorMax[4]        = {0x03, 0x22, 0x03, 0x0C};
-const PROGMEM unsigned char rqBattHVContactorState[4]      = {0x03, 0x22, 0xD0, 0x00};
+byte rqFlowControl[8]                             = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+const PROGMEM byte rqBattHWrev[4]                 = {0x03, 0x22, 0xF1, 0x50};
+const PROGMEM byte rqBattSWrev[4]                 = {0x03, 0x22, 0xF1, 0x51};
+const PROGMEM byte rqBattTemperatures[4]          = {0x03, 0x22, 0x02, 0x01}; 
+const PROGMEM byte rqBattModuleTemperatures[4]    = {0x03, 0x22, 0x02, 0x02};
+const PROGMEM byte rqBattHVstatus[4]              = {0x03, 0x22, 0x02, 0x04};
+const PROGMEM byte rqBattADCref[4]                = {0x03, 0x22, 0x02, 0x07};
+const PROGMEM byte rqBattVolts[4]                 = {0x03, 0x22, 0x02, 0x08};
+const PROGMEM byte rqBattIsolation[4]             = {0x03, 0x22, 0x02, 0x09};
+const PROGMEM byte rqBattAmps[4]                  = {0x03, 0x22, 0x02, 0x03};
+const PROGMEM byte rqBattDate[4]                  = {0x03, 0x22, 0x03, 0x04};
+const PROGMEM byte rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};
+const PROGMEM byte rqBattCapLoss[4]               = {0x03, 0x22, 0x03, 0x09};
+const PROGMEM byte rqBattCapacity[4]              = {0x03, 0x22, 0x03, 0x10};
+const PROGMEM byte rqBattHVContactorCyclesLeft[4] = {0x03, 0x22, 0x03, 0x0B};
+const PROGMEM byte rqBattHVContactorMax[4]        = {0x03, 0x22, 0x03, 0x0C};
+const PROGMEM byte rqBattHVContactorState[4]      = {0x03, 0x22, 0xD0, 0x00};
 
 #define CS     10                //!< chip select pin of MCP2515 CAN-Controller
 #define CS_SD  8                 //!< CS for SD card, if you plan to use a logger...
@@ -249,13 +249,13 @@ void setCAN_Filter(unsigned long filter){
 
 //--------------------------------------------------------------------------------
 //! \brief   Send diagnostic request to ECU.
-//! \param   unsigned char* rqQuery
+//! \param   byte* rqQuery
 //! \see     rqBattADCref ... rqBattVolts
-//! \return  received items count (unsigned int) of function #Get_RequestResponse
+//! \return  received lines count (unsigned int) of function #Get_RequestResponse
 //--------------------------------------------------------------------------------
-unsigned int Request_Diagnostics(const unsigned char* rqQuery){  
-  unsigned char rqMsg[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-  memcpy_P(rqMsg, rqQuery, 4 * sizeof(unsigned char)); // Fill byte 01 to 04 of rqMsg with rqQuery content (from PROGMEM)
+unsigned int Request_Diagnostics(const byte* rqQuery){  
+  byte rqMsg[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  memcpy_P(rqMsg, rqQuery, 4 * sizeof(byte)); // Fill byte 01 to 04 of rqMsg with rqQuery content (from PROGMEM)
   
   CAN_Timeout.Reset();                          // Reset Timeout-Timer
   
@@ -270,7 +270,7 @@ unsigned int Request_Diagnostics(const unsigned char* rqQuery){
 
 //--------------------------------------------------------------------------------
 //! \brief   Wait and read initial diagnostic response
-//! \return  item count (unsigned int)
+//! \return  lines count (unsigned int) of received lines á 7 bytes
 //--------------------------------------------------------------------------------
 unsigned int Get_RequestResponse(){ 
     
@@ -381,11 +381,11 @@ boolean Read_FC_Response(int items){
 
 //--------------------------------------------------------------------------------
 //! \brief   Output read buffer
-//! \param   items count (unsigned int)
+//! \param   lines count (unsigned int)
 //--------------------------------------------------------------------------------
-void PrintReadBuffer(unsigned int items) {
-  Serial.println(items);
-  for(int i = 0; i < items; i++) {
+void PrintReadBuffer(unsigned int lines) {
+  Serial.println(lines);
+  for(int i = 0; i < lines; i++) {
       Serial.print(F("Data: "));
       for(int n = 0; n < 7; n++)               // Print each byte of the data.
       {
@@ -415,7 +415,7 @@ void ClearReadBuffer(){
 //--------------------------------------------------------------------------------
 //! \brief   Store two byte data in temperature array
 //--------------------------------------------------------------------------------
-void ReadBatteryTemperatures(unsigned int data_in[], unsigned int highOffset, unsigned int length){
+void ReadBatteryTemperatures(byte data_in[], unsigned int highOffset, unsigned int length){
   for(int n = 0; n < (length * 2); n = n + 2){
     BattDiag.Temps[n/2] = ((data_in[n + highOffset] * 256 + data_in[n + highOffset + 1]));
   }
@@ -424,7 +424,7 @@ void ReadBatteryTemperatures(unsigned int data_in[], unsigned int highOffset, un
 //--------------------------------------------------------------------------------
 //! \brief   Store two byte data in CellCapacity obj
 //--------------------------------------------------------------------------------
-void ReadCellCapacity(unsigned int data_in[], unsigned int highOffset, unsigned int length){
+void ReadCellCapacity(byte data_in[], unsigned int highOffset, unsigned int length){
   for(int n = 0; n < (length * 2); n = n + 2){
     CellCapacity.push((data_in[n + highOffset] * 256 + data_in[n + highOffset + 1]));
   }
@@ -433,7 +433,7 @@ void ReadCellCapacity(unsigned int data_in[], unsigned int highOffset, unsigned 
 //--------------------------------------------------------------------------------
 //! \brief   Store two byte data in CellVoltage obj
 //--------------------------------------------------------------------------------
-void ReadCellVoltage(unsigned int data_in[], unsigned int highOffset, unsigned int length){
+void ReadCellVoltage(byte data_in[], unsigned int highOffset, unsigned int length){
   for(int n = 0; n < (length * 2); n = n + 2){
     CellVoltage.push((data_in[n + highOffset] * 256 + data_in[n + highOffset + 1]));
   }
@@ -446,7 +446,7 @@ void ReadCellVoltage(unsigned int data_in[], unsigned int highOffset, unsigned i
 //! \param   start of first high byte in data array (unsigned int)
 //! \param   length of data submitted (unsigned int)
 //--------------------------------------------------------------------------------
-void ReadDiagWord(unsigned int data_out[], unsigned int data_in[], unsigned int highOffset, unsigned int length){
+void ReadDiagWord(unsigned int data_out[], byte data_in[], unsigned int highOffset, unsigned int length){
   for(int n = 0; n < (length * 2); n = n + 2){
     data_out[n/2] = data_in[n + highOffset] * 256 + data_in[n + highOffset + 1];
   }
