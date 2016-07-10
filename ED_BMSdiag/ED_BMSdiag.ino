@@ -756,7 +756,7 @@ boolean getHVcontactorState(boolean debug_verbose) {
     if (debug_verbose) {
       PrintReadBuffer(items);
     }   
-    BMS.HVcontactCyclesLeft = (long) data[4] * 65536 + data[5] * 256 + data[6]; 
+    BMS.HVcontactCyclesLeft = (unsigned long) data[4] * 65536 + (unsigned int) data[5] * 256 + data[6]; 
     fValid = true;
   } else {
     fValid = false;
@@ -766,7 +766,7 @@ boolean getHVcontactorState(boolean debug_verbose) {
     if (debug_verbose) {
       PrintReadBuffer(items);
     }   
-    BMS.HVcontactCyclesMax = (long) data[4] * 65536 + data[5] * 256 + data[6]; 
+    BMS.HVcontactCyclesMax = (unsigned long) data[4] * 65536 + (unsigned int) data[5] * 256 + data[6]; 
     fValid = true;
   } else {
     fValid = false;
@@ -1132,7 +1132,7 @@ void loop()
         Serial.print(F("CV min  : ")); Serial.print(BMS.Cvolts.min - BMS.ADCvoltsOffset); Serial.print(F(" mV, # ")); Serial.println(BMS.CV_min_at + 1);
         Serial.print(F("CV max  : ")); Serial.print(BMS.Cvolts.max - BMS.ADCvoltsOffset); Serial.print(F(" mV, # ")); Serial.println(BMS.CV_max_at + 1);
         Serial.println(SPACER);
-        Serial.print(F("CAP mean: ")); Serial.print(BMS.Ccap_As.mean); Serial.print(F(" As/10, ")); Serial.print(BMS.Ccap_As.mean / 360.0,1); Serial.println(F(" Ah"));
+        Serial.print(F("CAP mean: ")); Serial.print(BMS.Ccap_As.mean, 0); Serial.print(F(" As/10, ")); Serial.print(BMS.Ccap_As.mean / 360.0,1); Serial.println(F(" Ah"));
         Serial.print(F("CAP min : ")); Serial.print(BMS.Ccap_As.min); Serial.print(F(" As/10, ")); Serial.print(BMS.Ccap_As.min / 360.0,1); Serial.print(F(" Ah, # ")); Serial.println(BMS.CAP_min_at + 1);
         Serial.print(F("CAP max : ")); Serial.print(BMS.Ccap_As.max); Serial.print(F(" As/10, ")); Serial.print(BMS.Ccap_As.max / 360.0,1); Serial.print(F(" Ah, # ")); Serial.println(BMS.CAP_max_at + 1);
         Serial.println(SPACER);
