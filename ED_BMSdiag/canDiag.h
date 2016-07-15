@@ -1,7 +1,29 @@
+//--------------------------------------------------------------------------------
+// (c) 2016 by MyLab-odyssey
+//
+// Licensed under "MIT License (MIT)", see license file for more information.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER OR CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//--------------------------------------------------------------------------------
+//! \file    canDiag.h
+//! \brief   Library module for retrieving diagnostic data.
+//! \date    2016-July
+//! \author  My-Lab-odyssey
+//! \version 0.10
+//--------------------------------------------------------------------------------
 #ifndef CANDIAG_H
 #define CANDIAG_H
 
-//#define DO_DEBUG_UPATE
+#define DO_DEBUG_UPATE
 
 #ifndef DO_DEBUG_UPDATE
 #define DEBUG_UPDATE(...)
@@ -9,20 +31,19 @@
 #define DEBUG_UPDATE(...) Serial.print(__VA_ARGS__)
 #endif
 
-#include <Arduino.h> 
+//#include <Arduino.h>
 #include <mcp_can.h>
-#include <SPI.h>
+//#include <SPI.h>
 #include <Timeout.h>
 #include <Average.h>
 #include "BMS_dfs.h"
 
-typedef Average <unsigned int> myAverage;
-
-static myAverage CellVoltage(93);
-static myAverage CellCapacity(93);
-
-//Data arrays
+//Data arrays and structures
 static byte data[DATALENGTH]; 
+
+typedef Average <unsigned int> myAverage;
+static myAverage CellVoltage(CELLCOUNT);
+static myAverage CellCapacity(CELLCOUNT);
 
 //CAN-Bus declarations
 static long unsigned int rxID;
@@ -33,24 +54,11 @@ static byte rqFC_length = 8;            //!< Interval to send flow control messa
 static byte rqFlowControl[8] = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 class canDiag { 
-
-    
+ 
 private:
     MCP_CAN *myCAN0;
     CTimeout *myCAN_Timeout;
-  
-public:  
-//Average<unsigned int> *CellVoltages;
-//Average<unsigned int> *CellCapacities;
-
-    canDiag();
-    ~canDiag(); 
-      
-    void begin(MCP_CAN *myCAN0, CTimeout *myCAN_TimeoutObj);
-    
-    void clearCAN_Filter();
-    void setCAN_Filter(unsigned long filter);
-
+        
     unsigned int Request_Diagnostics(const byte* rqQuery);
     unsigned int Get_RequestResponse();
     boolean Read_FC_Response(int items);
@@ -61,7 +69,25 @@ public:
     void ReadCellCapacity(byte data_in[], unsigned int highOffset, unsigned int length);
     void ReadCellVoltage(byte data_in[], unsigned int highOffset, unsigned int length);
     void ReadDiagWord(unsigned int data_out[], byte data_in[], unsigned int highOffset, unsigned int length);
+  
+public:  
+    //Average<unsigned int> *CellVoltages;
+    //Average<unsigned int> *CellCapacities;
 
+    canDiag();
+    ~canDiag(); 
+      
+
+//--------------------------------------------------------------------------------
+//! \brief   General functions MCP2515 controller
+//--------------------------------------------------------------------------------
+    void begin(MCP_CAN *myCAN0, CTimeout *myCAN_TimeoutObj);  
+    void clearCAN_Filter();
+    void setCAN_Filter(unsigned long filter);
+
+//--------------------------------------------------------------------------------
+//! \brief   Get methods for BMS data
+//--------------------------------------------------------------------------------
     boolean getBatteryTemperature(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryDate(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryRevision(BatteryDiag_t *myBMS, boolean debug_verbose);
@@ -77,10 +103,10 @@ public:
 
     unsigned int getCellVoltage(byte n);
     unsigned int getCellCapacity(byte n);
-    
-    void getBMSdata(BatteryDiag_t *myBMS);
 
-    
+//--------------------------------------------------------------------------------
+//! \brief   Read BMS values from CAN-Bus traffic
+//--------------------------------------------------------------------------------
     boolean ReadSOC(BatteryDiag_t *myBMS);
     boolean ReadSOCinternal(BatteryDiag_t *myBMS);
     boolean ReadPower(BatteryDiag_t *myBMS);
@@ -88,9 +114,6 @@ public:
     boolean ReadLV(BatteryDiag_t *myBMS);
     boolean ReadODO(BatteryDiag_t *myBMS);
     boolean ReadTime(BatteryDiag_t *myBMS);
- 
-
-
 
 };
 

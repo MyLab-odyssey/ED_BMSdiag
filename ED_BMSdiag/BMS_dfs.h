@@ -1,7 +1,29 @@
+//--------------------------------------------------------------------------------
+// (c) 2016 by MyLab-odyssey
+//
+// Licensed under "MIT License (MIT)", see license file for more information.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER OR CONTRIBUTORS "AS IS" AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//--------------------------------------------------------------------------------
+//! \file    BMS_dfs.h
+//! \brief   Definitions and structures for the BMS module.
+//! \date    2016-July
+//! \author  My-Lab-odyssey
+//! \version 0.10
+//--------------------------------------------------------------------------------
 #ifndef BMS_DFS_H
 #define BMS_DFS_H
 
-//Global Definitions for BMS
+//Definitions for BMS
 #define DATALENGTH 440
 #define CELLCOUNT 93
 #define RAW_VOLTAGES 0           //!< Use RAW values or calc ADC offset voltage
