@@ -18,7 +18,7 @@
 //! \brief   Definitions and structures for the BMS module.
 //! \date    2016-July
 //! \author  My-Lab-odyssey
-//! \version 0.10
+//! \version 0.1.0
 //--------------------------------------------------------------------------------
 #ifndef BMS_DFS_H
 #define BMS_DFS_H
