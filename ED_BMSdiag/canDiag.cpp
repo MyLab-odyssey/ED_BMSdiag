@@ -90,6 +90,19 @@ void canDiag::setCAN_Filter(unsigned long filter){
   myCAN0->setMode(MCP_NORMAL);                     // Set operation mode to normal so the MCP2515 sends acks to received data.
 }
 
+
+//--------------------------------------------------------------------------------
+//! \brief   Set request CAN ID and response CAN ID for get functions
+//--------------------------------------------------------------------------------
+void canDiag::setCAN_ID(unsigned long _respID) {
+  respID = _respID;
+}
+void canDiag::setCAN_ID(unsigned long _rqID, unsigned long _respID) {
+  rqID = _rqID;
+  respID = _respID;
+  this->setCAN_Filter(respID);
+}
+
 //--------------------------------------------------------------------------------
 //! \brief   Send diagnostic request to ECU.
 //! \param   byte* rqQuery
@@ -100,15 +113,15 @@ unsigned int canDiag::Request_Diagnostics(const byte* rqQuery){
   byte rqMsg[8] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   memcpy_P(rqMsg, rqQuery, 4 * sizeof(byte)); // Fill byte 01 to 04 of rqMsg with rqQuery content (from PROGMEM)
   
-  myCAN_Timeout->Reset();                          // Reset Timeout-Timer
+  myCAN_Timeout->Reset();                     // Reset Timeout-Timer
   
-  //digitalWrite(CS_SD, HIGH);                    // Disable SD card, or other SPI devices if nessesary
+  //digitalWrite(CS_SD, HIGH);                // Disable SD card, or other SPI devices if nessesary
   
   //--- Diag Request Message ---
   DEBUG_UPDATE(F("Send Diag Request\n\r"));
-  myCAN0->sendMsgBuf(0x7E7, 0, 8, rqMsg);        // send data: Request diagnostics data
+  myCAN0->sendMsgBuf(rqID, 0, 8, rqMsg);      // send data: Request diagnostics data
   
-  return this->Get_RequestResponse();                 // wait for response of first frame
+  return this->Get_RequestResponse();         // wait for response of first frame
 }
 
 //--------------------------------------------------------------------------------
@@ -129,7 +142,7 @@ unsigned int canDiag::Get_RequestResponse(){
         do{
           myCAN0->readMsgBuf(&rxID, &len, rxBuf);    // Read data: len = data length, buf = data byte(s)       
           
-          if (rxID == 0x7EF) { 
+          if (rxID == respID) { 
             if(rxBuf[0] < 0x10) {
               if((rxBuf[1] != 0x7F)) {  
                 for (i = 0; i<len; i++) {         // read data bytes: offset +1, 1 to 7
@@ -151,7 +164,7 @@ unsigned int canDiag::Get_RequestResponse(){
                   data[i] = rxBuf[i+1];       
               }
               //--- send rqFC: Request for more data ---
-              myCAN0->sendMsgBuf(0x7E7, 0, 8, rqFlowControl);
+              myCAN0->sendMsgBuf(rqID, 0, 8, rqFlowControl);
               DEBUG_UPDATE(F("Resp, i:"));
               DEBUG_UPDATE(items - 6); DEBUG_UPDATE("\n\r");
               fDataOK = Read_FC_Response(items - 6);
@@ -202,7 +215,7 @@ boolean canDiag::Read_FC_Response(int items){
             //--- FC counter -> then send Flow Control Message ---
             if (FC_count % FC_length == 0 && items > 0) {
               // send rqFC: Request for more data
-              myCAN0->sendMsgBuf(0x7E7, 0, 8, rqFlowControl);
+              myCAN0->sendMsgBuf(rqID, 0, 8, rqFlowControl);
               DEBUG_UPDATE(F("FCrq\n\r"));
             }
             n = n + 7;

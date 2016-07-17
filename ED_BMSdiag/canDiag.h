@@ -23,7 +23,7 @@
 #ifndef CANDIAG_H
 #define CANDIAG_H
 
-#define DO_DEBUG_UPATE
+#define DO_DEBUG_UPATE    //!< Uncomment to show DEBUG output
 
 #ifndef DO_DEBUG_UPDATE
 #define DEBUG_UPDATE(...)
@@ -46,11 +46,11 @@ static myAverage CellVoltage(CELLCOUNT);
 static myAverage CellCapacity(CELLCOUNT);
 
 //CAN-Bus declarations
-static long unsigned int rxID;
+static unsigned long rxID;
 static byte len = 0;
 static byte rxLength = 0;
 static byte rxBuf[8];
-static byte rqFC_length = 8;            //!< Interval to send flow control messages (rqFC) 
+static byte rqFC_length = 8;   //!< Interval to send flow control messages (rqFC) 
 static byte rqFlowControl[8] = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 class canDiag { 
@@ -58,6 +58,9 @@ class canDiag {
 private:
     MCP_CAN *myCAN0;
     CTimeout *myCAN_Timeout;
+
+    unsigned long rqID;
+    unsigned long respID;
         
     unsigned int Request_Diagnostics(const byte* rqQuery);
     unsigned int Get_RequestResponse();
@@ -84,6 +87,8 @@ public:
     void begin(MCP_CAN *myCAN0, CTimeout *myCAN_TimeoutObj);  
     void clearCAN_Filter();
     void setCAN_Filter(unsigned long filter);
+    void setCAN_ID(unsigned long _respID);
+    void setCAN_ID(unsigned long _rqID, unsigned long _respID);
 
 //--------------------------------------------------------------------------------
 //! \brief   Get methods for BMS data

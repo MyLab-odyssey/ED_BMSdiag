@@ -26,15 +26,8 @@
 //! \version 0.40b
 //--------------------------------------------------------------------------------
 
-#define DO_DEBUG_UPDATE        //!< Uncomment to show DEBUG output
 #define VERBOSE 1                //!< VERBOSE mode will output individual cell data
 #define EXPDATA 1                //!< EXPDATA mode will output experimental / NOT VERIFIED data
-
-#ifndef DO_DEBUG_UPDATE
-#define DEBUG_UPDATE(...)
-#else
-#define DEBUG_UPDATE(...) Serial.print(__VA_ARGS__)
-#endif
 
 #include <mcp_can.h>
 //#include <SPI.h>
@@ -217,7 +210,7 @@ void printHVcontactorState() {
   if (BMS.DCfault == 0) {
     Serial.println(F("NO FAULT"));
   } else {
-    Serial.println(F("DC FAULT !!!"));
+    Serial.println(F("DC FAULT"));
   }
 }
 
@@ -267,59 +260,67 @@ void printIndividualCellData() {
 }
 
 //--------------------------------------------------------------------------------
+//! \brief   Read CAN-Bus traffic for BMS relevant data
+//--------------------------------------------------------------------------------
+void Read_CANtraffic_BMS() {
+  boolean fOK = false;
+  
+  //Read CAN-messages 
+  byte testStep = 0;
+  do {
+    switch (testStep) {
+      case 0:
+         Serial.print(F("Reading data"));
+         fOK = DiagCAN.ReadSOC(&BMS);
+         break;
+      case 1:
+         fOK = DiagCAN.ReadSOCinternal(&BMS);
+         break;
+      case 2:
+         fOK = DiagCAN.ReadPower(&BMS);
+         break;
+      case 3:
+         fOK = DiagCAN.ReadHV(&BMS);
+         break;
+      case 4:
+         fOK = DiagCAN.ReadLV(&BMS);
+         break;
+      case 5:
+         fOK = DiagCAN.ReadODO(&BMS);
+         break;
+      case 6:
+         fOK = DiagCAN.ReadTime(&BMS);
+         break;
+    }
+    if (testStep < 7) {
+      if (fOK) {
+        Serial.print(MSG_DOT);
+      } else {
+        Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.print(testStep);
+      }
+    }
+    testStep++;
+  } while (testStep < 7);
+}
+
+//--------------------------------------------------------------------------------
 //! \brief   LOOP()
 //--------------------------------------------------------------------------------
 void loop()
-{       
-   boolean fOK = false;
-   
+{         
    //Wait for start via serial terminal
    WaitforSerial();
    clearSerialBuffer();
    delay(500);
    
-   //Read CAN-messages 
-   byte testStep = 0;
-   do {
-      switch (testStep) {
-        case 0:
-           Serial.print(F("Reading data"));
-           fOK = DiagCAN.ReadSOC(&BMS);
-           break;
-        case 1:
-           fOK = DiagCAN.ReadSOCinternal(&BMS);
-           break;
-        case 2:
-           fOK = DiagCAN.ReadPower(&BMS);
-           break;
-        case 3:
-           fOK = DiagCAN.ReadHV(&BMS);
-           break;
-        case 4:
-           fOK = DiagCAN.ReadLV(&BMS);
-           break;
-        case 5:
-           fOK = DiagCAN.ReadODO(&BMS);
-           break;
-        case 6:
-           fOK = DiagCAN.ReadTime(&BMS);
-           break;
-      }
-      if (testStep < 7) {
-        if (fOK) {
-          Serial.print(MSG_DOT);
-        } else {
-          Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.print(testStep);
-        }
-      }
-      testStep++;
-   } while (testStep < 7);
-   
+   //Read CAN-Bus IDs related to BMS (sniff traffic)
+   Read_CANtraffic_BMS();
    
    //Get diagnostics data
-   DiagCAN.setCAN_Filter(0x7EF);
-  
-   testStep = 0;
+   DiagCAN.setCAN_ID(0x7E7, 0x7EF);
+
+   boolean fOK = false;
+   byte testStep = 0;
    do {
       switch (testStep) {
         case 0:
@@ -363,7 +364,7 @@ void loop()
         if (fOK) {
           Serial.print(MSG_DOT);
         } else {
-          Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.println(testStep);
+          Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.print(testStep);
         }
       }
       testStep++;
@@ -396,6 +397,7 @@ void loop()
         Serial.println(SPACER);
       }
    } else {
+      Serial.println();
       Serial.println(F("---------- Measurement failed !----------"));
       fOK = false;
    } 
