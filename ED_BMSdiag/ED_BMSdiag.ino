@@ -1,5 +1,9 @@
 //--------------------------------------------------------------------------------
+<<<<<<< HEAD
 // ED BMSdiag, v0.4.0-b3
+=======
+// ED BMSdiag, v0.39b
+>>>>>>> master
 // Retrieve battery diagnostic data from your smart electric drive EV.
 //
 // (c) 2016 by MyLab-odyssey
@@ -23,7 +27,11 @@
 //! \brief   compatible hardware.
 //! \date    2016-July
 //! \author  My-Lab-odyssey
+<<<<<<< HEAD
 //! \version 0.4.0-b3
+=======
+//! \version 0.39b
+>>>>>>> master
 //--------------------------------------------------------------------------------
 
 #define VERBOSE 1                //!< VERBOSE mode will output individual cell data
@@ -36,7 +44,13 @@
 #include "canDiag.h"
 
 //Global definitions
+<<<<<<< HEAD
 #define VERSION F("0.4.0-b3")
+=======
+#define VERSION F("0.39b")
+#define DATALENGTH 440
+#define CELLCOUNT 93
+>>>>>>> master
 #define SPACER F("-----------------------------------------")
 #define MSG_OK F("OK")
 #define MSG_FAIL F("F")
@@ -72,7 +86,25 @@ void setup()
   // MCP2515 read buffer: setting pin 2 for input, LOW if CAN messages are received
   pinMode(2, INPUT); 
   
+<<<<<<< HEAD
   printWelcomeScreen();
+=======
+  Serial.println(SPACER); 
+  Serial.println(F("--- ED Battery Management Diagnostics ---"));
+  Serial.print(F("--- v")); Serial.print(VERSION);
+  Serial.println(F("                            ---"));
+  Serial.println(SPACER);
+  
+  //Serial.print(F("SRAM: ")); Serial.println(freeRam());
+  
+  Serial.println(F("Connect to OBD port - Waiting for CAN-Bus "));
+  do {
+    Serial.print(F("."));
+    delay(1000);
+  } while (digitalRead(2));
+  Serial.println(F("CONNECTED"));
+  Serial.println(SPACER);
+>>>>>>> master
 }
 
 //--------------------------------------------------------------------------------
@@ -156,6 +188,7 @@ void printExperimentalData() {
 //--------------------------------------------------------------------------------
 //! \brief   Output standard dataset
 //--------------------------------------------------------------------------------
+<<<<<<< HEAD
 void printStandardDataset() {
   Serial.print(F("SOC : ")); Serial.print(BMS.SOC,1); Serial.print(F(" %"));
   Serial.print(F(", realSOC: ")); Serial.print((float) BMS.realSOC / 10.0, 1); Serial.println(F(" %"));
@@ -163,6 +196,34 @@ void printStandardDataset() {
   Serial.print((float) BMS.Amps/32.0, 2); Serial.print(F(" A, "));
   if (BMS.Power != 0) {
     Serial.print(((float) (BMS.Power / 8192.0) -1) * 300, 2); Serial.println(F(" kW"));
+=======
+boolean getBatteryCapacity(boolean debug_verbose) {
+  unsigned int items = Request_Diagnostics(rqBattCapacity);
+  if(items){
+    if (debug_verbose) {
+      PrintReadBuffer(items);
+    }   
+    CellCapacity.clear();
+    ReadCellCapacity(data,25,CELLCOUNT);
+    BMS.Ccap_As.min = CellCapacity.minimum(&BMS.CAP_min_at);
+    BMS.Ccap_As.max = CellCapacity.maximum(&BMS.CAP_max_at);
+    BMS.Ccap_As.mean = CellCapacity.mean();
+
+    BMS.HVoff_time = (unsigned long) data[5] * 65535 + (unsigned int) data[6] * 256 + data[7];
+    BMS.HV_lowcurrent = (unsigned long) data[9] * 65535 + (unsigned int) data[10] * 256 + data[11];
+    BMS.OCVtimer = (unsigned int) data[12] * 256 + data[13];
+    ReadDiagWord(&BMS.Cap_As.min,data,21,1);
+    ReadDiagWord(&BMS.Cap_As.mean,data,23,1);
+    ReadDiagWord(&BMS.Cap_As.max,data,17,1);
+    ReadDiagWord(&BMS.LastMeas_days,data,427,1);
+    //BMS.LastMeas_days = data[428];
+    unsigned int value;
+    ReadDiagWord(&value,data,429,1);
+    BMS.Cap_meas_quality = value / 65535.0;
+    ReadDiagWord(&value,data,425,1);
+    BMS.Cap_combined_quality = value / 65535.0;
+    return true;
+>>>>>>> master
   } else {
     Serial.println(F("0.00 kW"));
   }
