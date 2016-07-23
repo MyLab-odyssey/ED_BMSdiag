@@ -18,7 +18,7 @@
 //! \brief   Definitions and structures for the BMS module.
 //! \date    2016-July
 //! \author  My-Lab-odyssey
-//! \version 0.1.0
+//! \version 0.2.0
 //--------------------------------------------------------------------------------
 #ifndef BMS_DFS_H
 #define BMS_DFS_H
@@ -61,8 +61,8 @@ typedef struct {
   int CAP_min_at;                //!< cell number with capacity mininum in pack
   int CAP_max_at;                //!< cell number with capacity maximum in pack
   
-  int CapInit;                   //!< battery initial capacity (As/10)
-  int CapLoss;                   //!< battery capacity loss (x/1000) in %  
+  int CapInit;                   //!< battery initial capacity (As/10), at a certain temperature maybe 45 degC
+  int CapLoss;                   //!< battery capacity loss (x/1000) in %, reflects aging (distance related?)
   
   unsigned long HVoff_time;      //!< HighVoltage contactor off time in seconds
   unsigned long HV_lowcurrent;   //!< counter time of no current, reset e.g. with PLC heater or driving
@@ -97,6 +97,7 @@ typedef struct {
   byte HVcontactState;           //!< contactor state: 0 := OFF, 2 := ON
   long HVcontactCyclesLeft;      //!< counter related to ON/OFF cyles of the car
   long HVcontactCyclesMax;       //!< static, seems to be maxiumum of contactor cycles 
+  byte UnknownCounter[3];        //!< some incremental counter - for what?
 } BatteryDiag_t; 
 
 const PROGMEM byte rqBattHWrev[4]                 = {0x03, 0x22, 0xF1, 0x50};
@@ -109,11 +110,14 @@ const PROGMEM byte rqBattVolts[4]                 = {0x03, 0x22, 0x02, 0x08};
 const PROGMEM byte rqBattIsolation[4]             = {0x03, 0x22, 0x02, 0x09};
 const PROGMEM byte rqBattAmps[4]                  = {0x03, 0x22, 0x02, 0x03};
 const PROGMEM byte rqBattDate[4]                  = {0x03, 0x22, 0x03, 0x04};
-const PROGMEM byte rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};
-const PROGMEM byte rqBattCapLoss[4]               = {0x03, 0x22, 0x03, 0x09};
 const PROGMEM byte rqBattCapacity[4]              = {0x03, 0x22, 0x03, 0x10};
 const PROGMEM byte rqBattHVContactorCyclesLeft[4] = {0x03, 0x22, 0x03, 0x0B};
 const PROGMEM byte rqBattHVContactorMax[4]        = {0x03, 0x22, 0x03, 0x0C};
 const PROGMEM byte rqBattHVContactorState[4]      = {0x03, 0x22, 0xD0, 0x00};
 
-#endif // #ifndef BMS_DFS_H
+//Experimental readouts
+const PROGMEM byte rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};
+const PROGMEM byte rqBattCapLoss[4]               = {0x03, 0x22, 0x03, 0x09};
+const PROGMEM byte rqBattUnknownCounter[4]        = {0x03, 0x22, 0x01, 0x01};
+
+#endif // of #ifndef BMS_DFS_H

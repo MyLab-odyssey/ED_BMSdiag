@@ -32,7 +32,10 @@ This simple version will display the diagnostics via a serial USB connection. Yo
 ## Version history
 version  | comment
 -------- | --------
-v0.4.0    | New canDiag class structure and BMS_dfs.h for BMS specific code
+v0.4.2   | **please reload all files !**
+         | Bugfix for Average-Template memory bug > rewritten  to AvgNew-Class
+         | ... This version uses dynamic memory allocation, so monitor free memory (between heap and stack) if you make modifications!
+v0.4.0   | New canDiag class structure and BMS_dfs.h for BMS specific code
 v0.3.9b  | **now using semantic versioning** (old files unchanged)
 v0.39b   | fixed type cast bug HVcontactor-timer
 v0.39    | Optimized memory usage to gain ~ 560 Bytes of SRAM for more features.

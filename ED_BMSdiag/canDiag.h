@@ -18,12 +18,12 @@
 //! \brief   Library module for retrieving diagnostic data.
 //! \date    2016-July
 //! \author  My-Lab-odyssey
-//! \version 0.1.0
+//! \version 0.2.0
 //--------------------------------------------------------------------------------
 #ifndef CANDIAG_H
 #define CANDIAG_H
 
-#define DO_DEBUG_UPATE    //!< Uncomment to show DEBUG output
+//#define DO_DEBUG_UPATE 1   //!< Uncomment to show DEBUG output
 
 #ifndef DO_DEBUG_UPDATE
 #define DEBUG_UPDATE(...)
@@ -31,33 +31,30 @@
 #define DEBUG_UPDATE(...) Serial.print(__VA_ARGS__)
 #endif
 
-//#include <Arduino.h>
 #include <mcp_can.h>
-//#include <SPI.h>
 #include <Timeout.h>
-#include <Average.h>
-#include "BMS_dfs.h"
-
-//Data arrays and structures
-static byte data[DATALENGTH]; 
-
-typedef Average <unsigned int> myAverage;
-static myAverage CellVoltage(CELLCOUNT);
-static myAverage CellCapacity(CELLCOUNT);
-
-//CAN-Bus declarations
-static unsigned long rxID;
-static byte len = 0;
-static byte rxLength = 0;
-static byte rxBuf[8];
-static byte rqFC_length = 8;   //!< Interval to send flow control messages (rqFC) 
-static byte rqFlowControl[8] = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+#include <AvgNew.h>
+#include "_BMS_dfs.h"
 
 class canDiag { 
  
 private:
     MCP_CAN *myCAN0;
     CTimeout *myCAN_Timeout;
+
+    byte *data;
+    Average CellVoltage;
+    Average CellCapacity;
+
+    int _getFreeRam ();
+
+    //CAN-Bus declarations
+    unsigned long rxID;
+    byte len = 0;
+    byte rxLength = 0;
+    byte rxBuf[8];
+    byte rqFlowControl[8] = {0x30, 0x08, 0x14, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    byte rqFC_length = 8;   //!< Interval to send flow control messages (rqFC) 
 
     unsigned long rqID;
     unsigned long respID;
@@ -74,13 +71,14 @@ private:
     void ReadDiagWord(unsigned int data_out[], byte data_in[], unsigned int highOffset, unsigned int length);
   
 public:  
-    //Average<unsigned int> *CellVoltages;
-    //Average<unsigned int> *CellCapacities;
-
     canDiag();
     ~canDiag(); 
-      
 
+    void reserveMem_CellVoltage();
+    void reserveMem_CellCapacity();
+    void freeMem_CellVoltage();
+    void freeMem_CellCapacity();
+    
 //--------------------------------------------------------------------------------
 //! \brief   General functions MCP2515 controller
 //--------------------------------------------------------------------------------
@@ -99,12 +97,11 @@ public:
     boolean getHVstatus(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getIsolationValue(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryCapacity(BatteryDiag_t *myBMS, boolean debug_verbose);
-    boolean getBatteryCapInit(BatteryDiag_t *myBMS, boolean debug_verbose);
-    boolean getBatteryCapLoss(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryVoltage(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryAmps(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getBatteryADCref(BatteryDiag_t *myBMS, boolean debug_verbose);
     boolean getHVcontactorState(BatteryDiag_t *myBMS, boolean debug_verbose);
+    boolean getBatteryExperimentalData(BatteryDiag_t *myBMS, boolean debug_verbose);
 
     unsigned int getCellVoltage(byte n);
     unsigned int getCellCapacity(byte n);
@@ -122,4 +119,4 @@ public:
 
 };
 
-#endif // #ifndef CANDIAG_H
+#endif // of #ifndef CANDIAG_H
