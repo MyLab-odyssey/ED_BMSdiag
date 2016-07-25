@@ -14,6 +14,8 @@ public:
 
     void Reset();
 
+    void Reset(unsigned long timeoutMS);
+
 private:
     volatile static unsigned long s_currentTime;
 

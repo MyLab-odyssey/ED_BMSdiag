@@ -29,8 +29,13 @@ bool CTimeout::Expired(bool fAutoReset)
     return false;
 }
 
-void
-CTimeout::Reset()
+void CTimeout::Reset()
 {
+    m_startTime = millis();
+}
+
+void CTimeout::Reset(unsigned long timeoutMS)
+{
+    m_timeout = timeoutMS;
     m_startTime = millis();
 }
