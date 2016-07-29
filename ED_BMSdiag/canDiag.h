@@ -132,7 +132,6 @@ public:
     boolean ReadLV(BatteryDiag_t *myBMS);
     boolean ReadODO(BatteryDiag_t *myBMS);
     boolean ReadTime(BatteryDiag_t *myBMS);
-
 };
 
 #endif // of #ifndef CANDIAG_H

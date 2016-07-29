@@ -202,7 +202,7 @@ void printNLG6temperatures() {
   Serial.println(F("Temperatures Charger-Unit /degC: "));
   Serial.print(F("Reported       : ")); Serial.println(NLG6.ReportedTemp - TEMP_OFFSET, DEC);
   Serial.print(F("Cooling plate  : ")); Serial.println(NLG6.CoolingPlateTemp - TEMP_OFFSET, DEC);
-  Serial.print(F("Mains socket   : ")); Serial.println(NLG6.SocketTemp - TEMP_OFFSET, DEC);
+  Serial.print(F("Inlet socket   : ")); Serial.println(NLG6.SocketTemp - TEMP_OFFSET, DEC);
   Serial.println(F("Internal values: "));
           
   for (byte n = 0; n < 8; n++) {
@@ -213,7 +213,7 @@ void printNLG6temperatures() {
 }
 
 //--------------------------------------------------------------------------------
-//! \brief   Output NLG6 charger temperatures
+//! \brief   Output NLG6 charger voltages and currents AC and DC
 //--------------------------------------------------------------------------------
 void printNLG6_Status() {
   Serial.println(F("Status NLG6 Charger-Unit: "));
@@ -232,7 +232,7 @@ void printNLG6_Status() {
 }
 
 //--------------------------------------------------------------------------------
-//! \brief   Output NLG6 charger temperatures
+//! \brief   Output Cooling Subsystem temperatures
 //--------------------------------------------------------------------------------
 void printCLS_Status() {
   Serial.println(F("Status Cooling- and Subsystems: "));
@@ -242,11 +242,11 @@ void printCLS_Status() {
   Serial.print(CLS.CoolingPumpTemp - 50); Serial.println(F(" degC"));
   Serial.print(F("              : "));
   Serial.print(CLS.CoolingPumpLV / 10.0, 1); Serial.print(F(" V, "));
-  Serial.print(CLS.CoolingPumpAmps / 5.0, 1); Serial.println(F(" A, "));
+  Serial.print(CLS.CoolingPumpAmps / 5.0, 1); Serial.println(F(" A"));
   Serial.println(F("OTR:")); 
   Serial.print(F("Cooling Pump  : ")); Serial.print(CLS.CoolingPumpOTR); Serial.println(F(" h"));
   Serial.print(F("Battery heater: ")); Serial.print(CLS.BatteryHeaterOTR); Serial.print(F(" h, "));
-  if (CLS.BatteryHeaterOTR == 0) {
+  if (CLS.BatteryHeaterON == 0) {
     Serial.println(F("OFF"));
   } else {
     Serial.println(F("ON"));
@@ -330,24 +330,29 @@ void printCLSdata() {
 //! \brief   The allocated memory will be released after the data output
 //--------------------------------------------------------------------------------
 void printBMSall() {
+  byte selected[12];                   //hold list for selected tasks
+  
   //Read CAN-Bus IDs related to BMS (sniff traffic)
-  ReadCANtraffic_BMS();
+  for (byte i = 0; i < 8; i++) {
+    selected[i] = i;
+  }
+  Serial.print(F("Reading data"));
+  ReadCANtraffic_BMS(selected, 8);
   
   //Reserve memory
   DiagCAN.reserveMem_CellVoltage();
   DiagCAN.reserveMem_CellCapacity();
+  //Serial.println(getFreeRam());
   
-  Serial.println(getFreeRam());
-
-  byte selected[] = {0,1,2,3,4,5,6,7,8,9,10,11};
-
   //Get all diagnostics data of BMS
-  if (getBMSdata(selected, sizeof(selected))) {
+  for (byte i = 0; i < 12; i++) {
+    selected[i] = i;
+  }
+  if (getBMSdata(selected, 12)) {
     printBMSdata();
   } else {
     Serial.println();
     Serial.println(FAILURE);
-    //fOK = false;
   }
     
   //Free allocated memory
@@ -359,6 +364,7 @@ void printBMSall() {
 //! \brief   Get all NLG6 data and output them
 //--------------------------------------------------------------------------------
 void printNLG6all() {
+  Serial.print(F("Reading data"));
   if (getNLG6data()) {
     printNLG6data();
   } else {
@@ -371,6 +377,7 @@ void printNLG6all() {
 //! \brief   Get all Cooling- and Subsystem data and output them
 //--------------------------------------------------------------------------------
 void printCLSall() {
+  Serial.print(F("Reading data"));
   if (getCLSdata()) {
     printCLSdata();
   } else {

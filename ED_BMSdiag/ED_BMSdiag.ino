@@ -47,7 +47,9 @@ void setup() {
   // MCP2515 read buffer: setting pin 2 for input, LOW if CAN messages are received
   pinMode(2, INPUT);
 
-  Serial.println(getFreeRam());
+  //Serial.println(getFreeRam());
+
+  //Print Welcome Screen and wait for CAN-Bus
   printWelcomeScreen();
   delay(1000);
 
@@ -55,33 +57,27 @@ void setup() {
   if (NLG6TEST) nlg6_installed();
   
   //Read CAN-Bus IDs related to BMS (sniff traffic)
-  ReadCANtraffic_BMS();
+  Serial.print(F("Reading data"));
+  byte selected[] = {0,1,2,3,4,5,6,7};
+  ReadCANtraffic_BMS(selected, sizeof(selected));
 
   //Print standard data set as overview
   printSplashScreen();
   
-  //Setup CLI
+  //Setup CLI and display prompt
   setupMenu();
+  cmd_display();
 }
 
 //--------------------------------------------------------------------------------
 //! \brief   LOOP()
 //--------------------------------------------------------------------------------
 void loop() {
-   //Wait for start via serial terminal
-   //WaitforSerial();
-   //clearSerialBuffer();
-
    if (CLI_Timeout.Expired(true)) {
       cmdPoll();                                   //Poll CLI status
    }
-
    if (myDevice.logging && LOG_Timeout.Expired(true)){
-      if (myDevice.logCount == 0) {
-        myDevice.logCount++;
-        Serial.println();
-      }
-      Serial.print(myDevice.logCount++); Serial.println(" logging");
+      logdata();
    }
 }
 
@@ -114,16 +110,16 @@ void clearSerialBuffer() {
 
 //--------------------------------------------------------------------------------
 //! \brief   Read CAN-Bus traffic for BMS relevant data
+//! \param   selected items for task (byte array), length of array
 //--------------------------------------------------------------------------------
-void ReadCANtraffic_BMS() {
+void ReadCANtraffic_BMS(byte *selected, byte len) {
   boolean fOK = false;
 
   //Read CAN-messages
   byte testStep = 0;
   do {
-    switch (testStep) {
+    switch (selected[testStep]) {
       case 0:
-         Serial.print(F("Reading data"));
          fOK = DiagCAN.ReadSOC(&BMS);
          break;
       case 1:
@@ -148,21 +144,20 @@ void ReadCANtraffic_BMS() {
          fOK = DiagCAN.ReadTime(&BMS);
          break;
     }
-    if (testStep < 8) {
+    if (!myDevice.logging && testStep < 8) {
       if (fOK) {
         Serial.print(MSG_DOT);
       } else {
-        Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.print(testStep);
+        Serial.print(MSG_FAIL);Serial.print(F("#")); Serial.print(selected[testStep]);
       }
     }
     testStep++;
-  } while (testStep < 8);
-
-  if (fOK) Serial.println(MSG_OK);
+  } while (testStep < len);
 }
 
 //--------------------------------------------------------------------------------
 //! \brief   Get BMS datasets
+//! \param   selected items for task (byte array), length of array
 //--------------------------------------------------------------------------------
 boolean getBMSdata(byte *selected, byte len) {
   boolean fOK = false;
@@ -201,13 +196,13 @@ boolean getBMSdata(byte *selected, byte len) {
          fOK = DiagCAN.getHVcontactorState(&BMS, false);
          break;
       case 10:
-         fOK = DiagCAN.getHVstatus(&BMS, true);
+         fOK = DiagCAN.getHVstatus(&BMS, false);
          break;
       case 11:
          fOK = DiagCAN.getIsolationValue(&BMS, false);
          break;
     }
-    if (testStep < 12) {
+    if (!myDevice.logging && testStep < 12) {
       if (fOK) {
         Serial.print(MSG_DOT);
       } else {
@@ -224,18 +219,19 @@ boolean getBMSdata(byte *selected, byte len) {
 //! \brief   Get NLG6 datasets
 //--------------------------------------------------------------------------------
 boolean getNLG6data() {
+  boolean fOK = false;
   
   //Get diagnostics data
-  boolean fOK = false;
+  DiagCAN.setCAN_ID(0x61A, 0x483);
+
   byte testStep = 0;
   do {
     switch (testStep) {
       case 0:
-         Serial.print(F("Reading data"));
          fOK = DiagCAN.getChargerVoltages(&NLG6, false);
          break;
       case 1:
-         fOK = DiagCAN.getChargerAmps(&NLG6, true);
+         fOK = DiagCAN.getChargerAmps(&NLG6, false);
          break;
       case 2:
          fOK = DiagCAN.getChargerSelCurrent(&NLG6, false);
@@ -244,7 +240,7 @@ boolean getNLG6data() {
          fOK = DiagCAN.getChargerTemperature(&NLG6, false);
          break;
     }
-    if (testStep < 4) {
+    if (!myDevice.logging && testStep < 4) {
       if (fOK) {
         Serial.print(MSG_DOT);
       } else {
@@ -261,17 +257,19 @@ boolean getNLG6data() {
 //! \brief   Get cooling- & subsystem datasets
 //--------------------------------------------------------------------------------
 boolean getCLSdata() {
-  
-  //Get diagnostics data
   boolean fOK = false;
   
-  Serial.print(F("Reading data"));
-  fOK = DiagCAN.getCoolingAndSubsystems(&CLS, true);   
-   
-  if (fOK) {
-    Serial.print(MSG_DOT);
-  } else {
-    Serial.print(MSG_FAIL);Serial.print(F("#0"));
+  //Get diagnostics data
+  DiagCAN.setCAN_ID(0x7E5, 0x7ED);
+
+  fOK = DiagCAN.getCoolingAndSubsystems(&CLS, false);   
+
+  if (!myDevice.logging) {
+    if (fOK) {
+      Serial.print(MSG_DOT);
+    } else {
+      Serial.print(MSG_FAIL);Serial.print(F("#0"));
+    }
   }
   return fOK;
 }

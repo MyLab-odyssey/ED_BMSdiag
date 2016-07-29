@@ -82,7 +82,6 @@ void get_temperatures (int arg_cnt, char **args) {
       }
       break;
     case subCS:
-
       break;
     case MAIN:
       break;
@@ -101,10 +100,8 @@ void get_voltages (int arg_cnt, char **args) {
       }
       break;
     case subNLG6:
-
       break;
     case subCS:
-
       break;
     case MAIN:
       break;
@@ -122,6 +119,10 @@ void help(int arg_cnt, char **args)
     case MAIN:
       Serial.println(F("* Main Menu:"));
       Serial.println(F("  BMS   Submenu"));
+      Serial.println(F("  CS    Submenu"));
+      if (myDevice.NLG6present) {
+        Serial.println(F("  NLG6  Submenu"));
+      }
       Serial.println(F("  help  List commands"));
       Serial.println(F("  log   Logging"));
       Serial.println(F("        [on/off] or [on/off] [time/s]"));
@@ -141,6 +142,8 @@ void help(int arg_cnt, char **args)
       Serial.println(F("  t     Get temperatures"));
       break;
     case subCS:
+     Serial.println(F("* CS Menu:"));
+      Serial.println(F("  all   Get complete dataset"));
       break;
   }   
 }
@@ -152,8 +155,9 @@ void help(int arg_cnt, char **args)
 //--------------------------------------------------------------------------------
 void show_splash(int arg_cnt, char **args) {
    //Read CAN-Bus IDs related to BMS (sniff traffic)
-  ReadCANtraffic_BMS();
-  printSplashScreen();
+   byte selected[] = {0,1,2,3,4,5,6,7};
+   ReadCANtraffic_BMS(selected, sizeof(selected));
+   printSplashScreen();
 }
 
 //--------------------------------------------------------------------------------
@@ -162,9 +166,9 @@ void show_splash(int arg_cnt, char **args) {
 //--------------------------------------------------------------------------------
 void show_info(int arg_cnt, char **args)
 {
-  Serial.print(F("Usable Memory: ")); Serial.println(getFreeRam());
+  //Serial.print(F("Usable Memory: ")); Serial.println(getFreeRam());
   //Serial.print(F("Menu: ")); Serial.println(myDevice.menu);
-  Serial.print(F("NLG6: ")); Serial.println(myDevice.menu);
+  Serial.print(F("NLG6: ")); Serial.println(myDevice.NLG6present);
   Serial.print(F("Logging interval: ")); Serial.print(myDevice.timer, DEC);
   Serial.println(F(" s"));
   Serial.print(F("Logging is "));
@@ -182,14 +186,6 @@ void show_info(int arg_cnt, char **args)
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void set_logging(int arg_cnt, char **args) {
-  /*Serial.println(arg_cnt);
-  for (int i=0; i<arg_cnt; i++) {
-    Serial.print("Arg ");
-    Serial.print(i);
-    Serial.print(": ");
-    Serial.println(args[i]);
-  }*/
-
   if (arg_cnt > 2) {
     myDevice.timer = (unsigned int) cmdStr2Num(args[2], 10);
   } 
@@ -282,5 +278,52 @@ void cs_sub (int arg_cnt, char **args) {
 boolean nlg6_installed() {
   myDevice.NLG6present =  DiagCAN.NLG6ChargerInstalled(false);
   return myDevice.NLG6present;
+}
+
+//--------------------------------------------------------------------------------
+//! \brief   Logging data. Call queryfunctions and output the data
+//--------------------------------------------------------------------------------
+void logdata(){
+  //Read CAN-Bus IDs related to BMS (sniff traffic)
+  byte selected[] = {0,1,2,3,4};
+  ReadCANtraffic_BMS(selected, sizeof(selected));
+
+  byte selected2[] ={8,11};
+  getBMSdata(selected2, sizeof(selected2));
+
+  getNLG6data();
+
+  getCLSdata();
+
+  if (myDevice.logCount == 0) {
+    //Print Header
+    myDevice.logCount++;
+    Serial.println();
+    Serial.println(F("SOC;rSOC;A;kW;V;Vc,min;Vc,max;Tb/C;L1/V;L1/A;L2/V;L2/A;L3/V;L3/A;HV/V;HV/A;Tr/C;Tc/C;Ti/C;Tm/C;P/%;Tp/C"));
+  }
+  //Print logged values
+  Serial.print(BMS.SOC,1); Serial.print(F(";"));
+  Serial.print((float) BMS.realSOC / 10.0, 1); Serial.print(F(";"));
+  Serial.print((float) BMS.Amps/32.0, 2); Serial.print(F(";"));
+  if (BMS.Power != 0) {
+    Serial.print(((float) (BMS.Power / 8192.0) -1) * 300, 2); Serial.print(F(";"));
+  } else {
+    Serial.print(F("0.00")); Serial.print(F(";"));
+  }
+  Serial.print(BMS.HV,1); Serial.print(F(";"));
+  Serial.print(BMS.ADCCvolts.min); Serial.print(F(";"));
+  Serial.print(BMS.ADCCvolts.max); Serial.print(F(";"));
+  Serial.print((float) BMS.Temps[9] / 64, 1); Serial.print(F(";"));
+  Serial.print(NLG6.MainsVoltage[0] / 10.0, 1); Serial.print(F(";")); Serial.print(NLG6.MainsAmps[0] / 10.0, 1); Serial.print(F(";"));
+  Serial.print(NLG6.MainsVoltage[1] / 10.0, 1); Serial.print(F(";")); Serial.print(NLG6.MainsAmps[1] / 10.0, 1); Serial.print(F(";"));
+  Serial.print(NLG6.MainsVoltage[2] / 10.0, 1); Serial.print(F(";")); Serial.print(NLG6.MainsAmps[2] / 10.0, 1); Serial.print(F(";"));
+  Serial.print(NLG6.DC_HV / 10.0, 1); Serial.print(F(";")); Serial.print(NLG6.DC_Current / 10.0, 1); Serial.print(F(";"));
+  Serial.print(NLG6.ReportedTemp - TEMP_OFFSET, DEC); Serial.print(F(";"));
+  Serial.print(NLG6.CoolingPlateTemp - TEMP_OFFSET, DEC); Serial.print(F(";"));
+  Serial.print(NLG6.SocketTemp - TEMP_OFFSET, DEC); Serial.print(F(";"));
+  Serial.print(CLS.CoolingTemp / 8.0,1); Serial.print(F(";"));
+  Serial.print(CLS.CoolingPumpRPM / 255.0 * 100.0, 1); Serial.print(F(";"));
+  Serial.print(CLS.CoolingPumpTemp - 50);
+  Serial.println();
 }
 

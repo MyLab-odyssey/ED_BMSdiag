@@ -783,7 +783,7 @@ boolean canDiag::getChargerSelCurrent(ChargerDiag_t *myNLG6, boolean debug_verbo
 }
 
 //--------------------------------------------------------------------------------
-//! \brief   Read and evaluate charger setpoint (manual from vehicle BC)
+//! \brief   Read and evaluate charger voltages and currents
 //! \param   enable verbose / debug output (boolean)
 //! \return  report success (boolean)
 //--------------------------------------------------------------------------------
@@ -1099,7 +1099,7 @@ boolean canDiag::ReadODO(BatteryDiag_t *myBMS) {
 }
 
 //--------------------------------------------------------------------------------
-//! \brief   Read and evaluate odometer
+//! \brief   Read and evaluate time in Multifunction display
 //! \return  report success (boolean)
 //--------------------------------------------------------------------------------
 boolean canDiag::ReadTime(BatteryDiag_t *myBMS) {
