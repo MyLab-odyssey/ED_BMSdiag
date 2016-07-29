@@ -271,5 +271,6 @@ boolean getCLSdata() {
       Serial.print(MSG_FAIL);Serial.print(F("#0"));
     }
   }
+
   return fOK;
 }
