@@ -87,7 +87,7 @@ class Average {
         uint16_t sum();
         void clear();
         void bubble_sort();
-        int16_t percentile(int pos);
+        int16_t percentile(int16_t pos);
         //Average<T> &operator=(Average<T> &a);
 
 };
