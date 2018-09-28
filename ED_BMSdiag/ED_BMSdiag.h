@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------
-// (c) 2015-2017 by MyLab-odyssey
+// (c) 2015-2018 by MyLab-odyssey
 //
 // Licensed under "MIT License (MIT)", see license file for more information.
 //
@@ -16,14 +16,14 @@
 //--------------------------------------------------------------------------------
 //! \file    ED_BMSdiag.h
 //! \brief   Definitions and structures for the main program ED_BMSdiag.ino
-//! \date    2017-September
+//! \date    2018-February
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.5
 //--------------------------------------------------------------------------------
 
 #define VERBOSE 1                //!< VERBOSE mode will output individual cell data
 #define BOXPLOT 1                //!< Visualize cell statistics as boxplot
-#define EXPDATA 0                //!< EXPDATA mode will output experimental / NOT VERIFIED data
+#define EXPDATA 1                //!< EXPDATA mode will output experimental / NOT VERIFIED data
 #define HELP 1                   //!< HELP menu active
 #define ECHO 1                   //!< local ECHO of CLI
 #define NLG6TEST 1               //!< Test if the NLG6 fast charger is installed, 
@@ -35,7 +35,7 @@
 #include "canDiag.h"
 
 //Global definitions
-char* const PROGMEM version = "1.0.1";
+char* const PROGMEM version = (char *) "1.0.5";
 #define FAILURE F("* Measurement failed *")
 #define MSG_OK F("OK")
 #define MSG_FAIL F("F")
@@ -63,6 +63,14 @@ typedef struct {
   uint16_t timer = 30;
   bool logging = false;
   uint16_t logCount = 0;
+  bool initialDump = true;
+  bool experimental = false;
 } deviceStatus_t;
 
 deviceStatus_t myDevice;
+
+enum {EE_Signature = 0, EE_InitialDumpAll, EE_logging, EE_logInterval, EE_Experimental};
+const byte kMagicSignature = 0x55;
+
+void ReadGlobalConfig(deviceStatus_t *config, bool force_write = false);
+

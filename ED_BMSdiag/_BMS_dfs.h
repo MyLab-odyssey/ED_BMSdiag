@@ -16,9 +16,9 @@
 //--------------------------------------------------------------------------------
 //! \file    BMS_dfs.h
 //! \brief   Definitions and structures for the BMS module.
-//! \date    2017-September
+//! \date    2017-December
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.4
 //--------------------------------------------------------------------------------
 #ifndef BMS_DFS_H
 #define BMS_DFS_H
@@ -93,7 +93,7 @@ typedef struct {
   byte minutes;                  //!< time in car: minutes
   
   float SOC;                     //!< State of Charge, as reported by vehicle dash
-  byte SOH;                      //!< Flag showing if degraded cells are found, or battery failiure present 
+  byte SOH;                      //!< Flag showing if degraded cells are found, or battery failure present 
   uint16_t realSOC;              //!< The internal SOC value in % (x/10)
     
   int16_t Amps;                  //!< battery current in ampere (x/32) reported by by BMS
@@ -116,6 +116,7 @@ typedef struct {
   long HVcontactCyclesMax;       //!< static, seems to be maxiumum of contactor cycles 
   byte UnknownCounter[3];        //!< some incremental counter - for what?
   char BattVIN[18];              //!< VIN stored in BMS
+  char CarVIN[18];               //!< VIN stored in ECU
   boolean fHAL = false;
 } BatteryDiag_t; 
 
@@ -135,6 +136,8 @@ const PROGMEM byte rqBattCapacity[6]              = {0x03, 0x22, 0x03, 0x10, 31,
 const PROGMEM byte rqBattHVContactorCyclesLeft[4] = {0x03, 0x22, 0x03, 0x0B};
 const PROGMEM byte rqBattHVContactorMax[4]        = {0x03, 0x22, 0x03, 0x0C};
 const PROGMEM byte rqBattHVContactorState[4]      = {0x03, 0x22, 0xD0, 0x00};
+
+const PROGMEM byte rqCarVIN[4]                   = {0x02, 0x09, 0x02, 0x00};
 
 //Experimental readouts
 const PROGMEM byte rqBattCapInit[4]               = {0x03, 0x22, 0x03, 0x05};

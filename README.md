@@ -1,17 +1,19 @@
 # ED BMSdiag
 
-[![version](https://img.shields.io/badge/version-v1.0.1-blue.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/archive/master.zip)
+[![version](https://img.shields.io/badge/version-v1.0.5-blue.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/archive/master.zip)
 [![version](https://img.shields.io/badge/issues-none-brightgreen.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/issues)
-[![release](https://img.shields.io/badge/release-v1.0.1-brightgreen.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/releases)
+[![release](https://img.shields.io/badge/release-v1.0.5-brightgreen.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/releases)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/LICENSE.txt)
 
 Retrieve battery diagnostic data from your smart electric drive EV. Get a Status Report to rate the health of the battery or dig into more detailed measurements.  
 
 >**Further documentation in the [Wiki](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki).**
 
->**The development is now finished with the final release of v1.0.1 .**  
+>**The development is now basically finished with the final release of v1.0.5 .**  
 
 >**The software will only work on the third generation Smart electric drive vehicle build from late 2012 to mid 2015.**
+
+>**You can buy a pre-assembled version of this tool. More information [here](http://www.sokoloff.com/smart451ED-BMS/).**
 
 ---
 
@@ -35,6 +37,8 @@ Get the hardware and use an appropriate cable for the physical connection. See t
 
 > **Verified to work with Arduino IDE 1.8.4 (on OS X 10.12 and WIN-Systems)**
 
+> **Verified to work with Arduino IDE 1.8.5 (on OS X 10.13)**
+
 ## Usage >on your own risk<
 Connect the CAN shield to the OBDII-connector and power up the car.
 
@@ -50,6 +54,15 @@ This simple tool will display the diagnostics via a serial USB connection. The r
 ## Version history
 |version  | comment|
 |-------- | --------|
+|v1.0.5   | Internal:|
+|         | ... Eliminate compiler warnings throughout the code. Two warnings remain, but are in the EEPROM library|
+|v1.0.4   | Feature:|
+|         | ... When battery SOH flags show "DEGRADED", output individual flags|
+|v1.0.3   | Small improvement:|
+|         | ... Experimental/unverified data now configurable at use rather than at compile time|
+|v1.0.2   | Small improvements:|
+|         | ... Now supports automatic dumping of all diagnostic data upon connection|
+|         | ... Configuration is now stored to onboard EEPROM, so device comes up in the same state as it was last used (for logging settings and intial dump on/off)|
 |v1.0.1   | **Final Release - Project finished**. Small bugfixes and improvements:|
 |         | ... Battery Status Flag shows health status of the pack [OK, FAULT].|
 |         | ... Outliners count in box plot now excludes min- / max-values.|

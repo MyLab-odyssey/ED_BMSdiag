@@ -16,9 +16,9 @@
 //--------------------------------------------------------------------------------
 //! \file    canDiag.cpp
 //! \brief   Library module for retrieving diagnostic data.
-//! \date    2017-September
+//! \date    2017-December
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.2
 //--------------------------------------------------------------------------------
 #include "canDiag.h"
 
@@ -246,8 +246,8 @@ uint16_t canDiag::Get_RequestResponse(){
     this->SkipEnable = false;
 
     if (fDataOK) {
-      return (items + 7) / 7;
       DEBUG_UPDATE(F("success!\n\r"));
+      return (items + 7) / 7;
     } else {
       DEBUG_UPDATE(F("Event Timeout!\n\r")); 
       this->ClearReadBuffer(); 
@@ -319,6 +319,7 @@ boolean canDiag::Read_FC_Response(int16_t items){
 //--------------------------------------------------------------------------------
 void canDiag::PrintReadBuffer(uint16_t lines) {
   uint16_t pos;
+
   Serial.println(lines);
   for(uint16_t i = 0; i < lines; i++) {
     Serial.print(F("Data: "));
@@ -533,10 +534,46 @@ boolean canDiag::getBatteryVIN(BatteryDiag_t *myBMS, boolean debug_verbose) {
   if(items){
     if (debug_verbose) {
       this->PrintReadBuffer(items);
-    } 
+    }
+    myBMS->BattVIN[17]=0;
     for(byte n = 0; n < 17; n++) {
       myBMS->BattVIN[n] =  data[n + 4];
       if (myBMS->BattVIN[n] == myVIN[n]) OKcount++;
+    }
+    //return true if data completely matches
+    if (OKcount == 17) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+
+//--------------------------------------------------------------------------------
+//! \brief   Read the VIN stored in the battery and compare it to myVIN def.
+//! \param   enable verbose / debug output (boolean)
+//! \return  report success (boolean)
+//!
+//! DOESN'T WORK YET - NEEDS DEBUGGING
+//--------------------------------------------------------------------------------
+boolean canDiag::getCarVIN(BatteryDiag_t *myBMS, boolean debug_verbose) {
+  debug_verbose = debug_verbose & VERBOSE_ENABLE;
+  uint16_t items;
+
+  Serial.println("Getting Car VIN");
+  this->setCAN_ID(0x7E7, 0);
+  items = this->Request_Diagnostics(rqCarVIN);
+  
+  byte OKcount = 0;
+  if(items){
+    if (debug_verbose) {
+      this->PrintReadBuffer(items);
+    }
+    myBMS->CarVIN[17]=0;
+    for(byte n = 0; n < 17; n++) {
+      myBMS->CarVIN[n] =  data[n + 4];
+      if (myBMS->CarVIN[n] == myVIN[n]) OKcount++;
     }
     //return true if data completely matches
     if (OKcount == 17) {

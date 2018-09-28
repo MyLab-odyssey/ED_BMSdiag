@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------------
-// ED BMSdiag, v1.0.1
+// ED BMSdiag, v1.0.5
 // Retrieve battery diagnostic data from your smart electric drive EV.
 //
-// (c) 2015-2017 by MyLab-odyssey
+// (c) 2015-2018 by MyLab-odyssey
 //
 // Licensed under "MIT License (MIT)", see license file for more information.
 //
@@ -22,18 +22,31 @@
 //! \brief   Only usable for third gen. model build from late 2012 to mid 2015!!!
 //! \brief   Build a diagnostic tool with the MCP2515 CAN controller and Arduino
 //! \brief   compatible hardware.
-//! \date    2017-September
+//! \date    2018-February
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.5
 //--------------------------------------------------------------------------------
 #include "ED_BMSdiag.h"
+
+#include <EEPROM.h>
 
 //--------------------------------------------------------------------------------
 //! \brief   SETUP()
 //--------------------------------------------------------------------------------
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+
   Serial.begin(115200);
-  while (!Serial); // while the serial stream is not open, do nothing
+  while (!Serial) {
+    // while the serial stream is not open,  blink LED
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(500);                       // wait for a 1/2 second
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(500);                       // wait for a 1/2 second
+  }
+
+  // Read configuration from EEPROM
+  ReadGlobalConfig(&myDevice);
 
   pinMode(CS, OUTPUT);
   pinMode(CS_SD, OUTPUT);
@@ -58,19 +71,25 @@ void setup() {
   if (NLG6TEST) nlg6_installed();
 
   //test valid VIN stored in battery
-  if (sizeof(myVIN) > 1) test_BattVIN();
+  test_BattVIN();
   
   //Read CAN-Bus IDs related to BMS (sniff traffic)
-  Serial.print(F("Reading data"));
   byte selected[] = {0,1,2,3,4,5,6,7};
   ReadCANtraffic_BMS(selected, sizeof(selected));
+
+  //Setup CLI, display prompt and local echo
+  setupMenu();
+  init_cmd_prompt();
+
+  // For convenience of users, dump all data first (same as "all" from top-level menu)
+  // Do this after the setupMenu() call.
+  if (myDevice.initialDump)
+    get_all(0, (char**) 0L);
 
   //Print standard data set as overview
   printSplashScreen();
   
-  //Setup CLI, display prompt and local echo
-  setupMenu();
-  init_cmd_prompt();
+  // Prompt user for what to do next
   cmd_display();
   set_local_echo(ECHO);
   
@@ -282,3 +301,22 @@ boolean getCLSdata() {
 
   return fOK;
 }
+
+
+void ReadGlobalConfig(deviceStatus_t *config, bool force_write)
+{
+  // If the EEPROM hasn't been programmed yet, program it
+  if (force_write || EEPROM.read(EE_Signature) != kMagicSignature) {
+    Serial.println("Setting factory defaults");
+    EEPROM.update(EE_InitialDumpAll, 1); 
+    EEPROM.update(EE_logging, 0);
+    EEPROM.update(EE_logInterval, 30);
+    EEPROM.update(EE_Experimental, 0);
+    EEPROM.update(EE_Signature, kMagicSignature);
+  }
+  config->initialDump = (EEPROM.read(EE_InitialDumpAll) > 0);
+  config->logging = (EEPROM.read(EE_logging) > 0);
+  config->timer = EEPROM.read(EE_logInterval);
+  config->experimental = (EEPROM.read(EE_Experimental) > 0);
+}
+

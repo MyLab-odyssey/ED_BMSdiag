@@ -16,9 +16,9 @@
 //--------------------------------------------------------------------------------
 //! \file    ED_BMSdiag_PRN.ino
 //! \brief   Functions for serial printing the datasets
-//! \date    2017-September
+//! \date    2017-December
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.4
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ void PrintSPACER() {
 //--------------------------------------------------------------------------------
 void printWelcomeScreen() {
   byte vLength = strlen(version);
-  PrintSPACER();
+  Serial.println(); PrintSPACER();
   Serial.println(F("--- ED Battery Management Diagnostics ---"));
   Serial.print(F("--- v")); Serial.print(version);
   for (byte i = 0; i < (41 - 5 - vLength - 3); i++) {
@@ -43,8 +43,16 @@ void printWelcomeScreen() {
   Serial.println(F("---"));
   PrintSPACER();
 
-  Serial.println(F("Connect to OBD port - Waiting for CAN-Bus "));
+  int count = 0;
   do {
+    if (count == 0) {
+        Serial.println();
+        Serial.println(F("Connect to OBD port - Waiting for CAN-Bus "));
+    }
+    count++;
+    if (count >= 41) {
+      count = 0;
+    }
     Serial.print(F("."));
     delay(1000);
   } while (digitalRead(2));
@@ -56,6 +64,9 @@ void printWelcomeScreen() {
 //! \brief   Output header data
 //--------------------------------------------------------------------------------
 void printHeaderData() {
+  
+  Serial.print(F("Battery VIN: "));
+  Serial.println(BMS.BattVIN);
   Serial.print(F("Time [hh:mm]: "));
   if (BMS.hour <= 9) Serial.print(F("0"));
   Serial.print(BMS.hour); Serial.print(F(":"));
@@ -74,7 +85,15 @@ void printBatteryProductionData(boolean fRPT) {
   } else if (BMS.SOH == 0) {
     Serial.println(F("FAULT"));
   } else {
-    Serial.println(F("DEGRADED"));
+    Serial.print(F("DEGRADED: "));
+    for(byte mask = 0x80; mask; mask >>= 1) {
+      if(mask & BMS.SOH) {
+        Serial.print(F("1"));
+      } else {
+        Serial.print(F("0"));
+      }
+    }
+    Serial.println("");
   }
   Serial.println();
   Serial.print(F("Battery Production [Y/M/D]: ")); Serial.print(2000 + BMS.ProdYear); Serial.print(F("/"));
@@ -384,7 +403,7 @@ void printCLS_Status() {
 //! \brief   Output status data as splash screen
 //--------------------------------------------------------------------------------
 void printSplashScreen() {
-  Serial.println(); PrintSPACER();
+  Serial.println(); Serial.println(); PrintSPACER();
   printHeaderData();
   PrintSPACER();
   printStandardDataset();
@@ -423,7 +442,7 @@ void printBMSdata() {
     printVoltageDistribution();           //Print statistic data as boxplot
     PrintSPACER();
   }
-  if (EXPDATA) {
+  if (myDevice.experimental) {
     printExperimentalData();
     PrintSPACER();
   }

@@ -1,11 +1,20 @@
 ## ED BMSdiag version history
 |version  | comment|
 |-------- | --------|
+|v1.0.5   | Internal:|
+|         | ... Eliminate compiler warnings throughout the code. Two warnings remain, but are in the EEPROM library|
+|v1.0.4   | Feature:|
+|         | ... When battery SOH flags show "DEGRADED", output individual flags|
+|v1.0.3   | Small improvement:|
+|         | ... Experimental/unverified data now configurable at use rather than at compile time|
+|v1.0.2   | Small improvements:|
+|         | ... Now supports automatic dumping of all diagnostic data upon connection|
+|         | ... Configuration is now stored to onboard EEPROM, so device comes up in the same state as it was last used (for logging settings and intial dump on/off)|
 |v1.0.1   | **Final Release - Project finished**. Small bugfixes and improvements:|
 |         | ... Battery Status Flag shows health status of the pack [OK, FAULT].|
 |         | ... Outliners count in box plot now excludes min- / max-values.|
 |         | ... Battery Status Report optimized with hints for better charging / capacity measurement.|
-|v0.9.2   | **Final Release Canidate** with bugfixes and new features. **Please reload all files (including library files) !!!**|
+|v0.9.2   | **Final Release Candidate** with bugfixes and new features. **Please reload all files (including library files) !!!**|
 |         | `all` command in MAIN menue will run all test.|
 |         | `rpt` command will get a Battery Status Report. This completed feature [#12](https://github.com/MyLab-odyssey/ED_BMSdiag/issues/12).|
 |v0.7.1   | Now showing outliners count in the box plot. Feature [#13](https://github.com/MyLab-odyssey/ED_BMSdiag/issues/13) completed. See [Wiki for description](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Data-Overview).|

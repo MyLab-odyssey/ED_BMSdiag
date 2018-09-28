@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------
-// (c) 2015-2017 by MyLab-odyssey
+// (c) 2015-2018 by MyLab-odyssey
 //
 // Licensed under "MIT License (MIT)", see license file for more information.
 //
@@ -16,9 +16,9 @@
 //--------------------------------------------------------------------------------
 //! \file    ED_BMSdiag_CLI.ino
 //! \brief   Functions for the Command Line Interface (CLI) menu system
-//! \date    2017-September
+//! \date    2018-February
 //! \author  MyLab-odyssey
-//! \version 1.0.1
+//! \version 1.0.5
 //--------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------
@@ -46,6 +46,9 @@ void setupMenu() {
   cmdAdd("rpt", get_rpt);
   cmdAdd("log", set_logging);
   cmdAdd("info", show_info);
+  cmdAdd("reset", reset_factory_defaults);
+  cmdAdd("initial", set_initial_dump);
+  cmdAdd("experimental", set_experimental);
 }
 
 //--------------------------------------------------------------------------------
@@ -53,6 +56,7 @@ void setupMenu() {
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void get_all (uint8_t arg_cnt, char **args) {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   switch (myDevice.menu) {
     case subBMS:
       printBMSall();
@@ -77,6 +81,7 @@ void get_all (uint8_t arg_cnt, char **args) {
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void get_rpt (uint8_t arg_cnt, char **args) {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   printRPT();
 }
 
@@ -85,6 +90,7 @@ void get_rpt (uint8_t arg_cnt, char **args) {
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void get_temperatures (uint8_t arg_cnt, char **args) {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   switch (myDevice.menu) {
     case subBMS:
       if (DiagCAN.getBatteryTemperature(&BMS, false)){
@@ -109,6 +115,7 @@ void get_temperatures (uint8_t arg_cnt, char **args) {
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void get_voltages (uint8_t arg_cnt, char **args) {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   switch (myDevice.menu) {
     case subBMS:
       if (DiagCAN.getBatteryADCref(&BMS, false)){
@@ -136,23 +143,30 @@ void get_voltages (uint8_t arg_cnt, char **args) {
 #ifdef HELP
 void help(uint8_t arg_cnt, char **args)
 {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   switch (myDevice.menu) {
     case MAIN:
       Serial.println(F("* Main Menu:"));
-      Serial.println(F("  BMS   Submenu"));
-      Serial.println(F("  CS    Submenu"));
+      Serial.println(F("  BMS          Submenu"));
+      Serial.println(F("  CS           Submenu"));
       if (NLG6.NLG6present) {
-        Serial.println(F("  NLG6  Submenu"));
+        Serial.println(F("  NLG6         Submenu"));
       } else {
-        Serial.println(F("  OBL   Submenu"));
+        Serial.println(F("  OBL          Submenu"));
       }
-      Serial.println(F("  all   Run all tests"));
-      Serial.println(F("  rpt   Show battery report"));
+      Serial.println(F("  all          Run all tests"));
+      Serial.println(F("  rpt          Show battery report"));
       Serial.println();
-      Serial.println(F("  help  List commands"));
-      Serial.println(F("  info  Show logging state"));
-      Serial.println(F("  log   Logging"));
-      Serial.println(F("        [on/off] or [on/off] [time/s]"));
+      Serial.println(F("  help         List commands"));
+      Serial.println(F("  info         Show logging state"));
+      Serial.println(F("  log          Logging"));
+      Serial.println(F("               [on/off] or [on/off] [time/s]"));
+      Serial.println(F("  reset        Reset to factory defaults (initial dump, logging off)"));
+      Serial.println(F("  initial      Configure initial dump on or off"));
+      Serial.println(F("               [on/off]"));
+      Serial.println(F("  experimental Configure whether to include experimental data"));
+      Serial.println(F("               [on/off]"));
+            
       Serial.println();
       Serial.println(F("  #     Show real time data"));
       break;
@@ -187,6 +201,7 @@ void help(uint8_t arg_cnt, char **args)
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void show_splash(uint8_t arg_cnt, char **args) {
+   (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
    //Read CAN-Bus IDs related to BMS (sniff traffic)
    byte selected[] = {0,1,2,3,4,5,6,7};
    ReadCANtraffic_BMS(selected, sizeof(selected));
@@ -195,24 +210,38 @@ void show_splash(uint8_t arg_cnt, char **args) {
 
 //--------------------------------------------------------------------------------
 //! \brief   Callback to get all datasets depending on the active menu
+//! \param   true for "ON", false for "OFF"
+//--------------------------------------------------------------------------------
+void print_on_off(bool on)
+{
+  if (on)
+  {
+    Serial.println(F("ON"));
+  } else {
+    Serial.println(F("OFF"));
+  }
+}
+
+//--------------------------------------------------------------------------------
+//! \brief   Callback to get all datasets depending on the active menu
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void show_info(uint8_t arg_cnt, char **args)
 {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   //Serial.print(F("Usable Memory: ")); Serial.println(getFreeRam());
   //Serial.print(F("Menu: ")); Serial.println(myDevice.menu);
+//  Serial.print(F("    Car VIN: ")); Serial.println(BMS.CarVIN);
   Serial.print(F("Battery VIN: ")); Serial.println(BMS.BattVIN);
   Serial.print(F("NLG6: ")); Serial.println(NLG6.NLG6present);
   Serial.print(F("Logging interval: ")); Serial.print(myDevice.timer, DEC);
   Serial.println(F(" s"));
   Serial.print(F("Logging is "));
-  if (myDevice.logging)
-  {
-    Serial.println(F("ON"));
-  }
-  else {
-    Serial.println(F("OFF"));
-  }
+  print_on_off(myDevice.logging);
+  Serial.print(F("Initial dump is "));
+  print_on_off (myDevice.initialDump);
+  Serial.print(F("Experimental data is "));
+  print_on_off (myDevice.experimental);
 }
 
 //--------------------------------------------------------------------------------
@@ -232,6 +261,48 @@ void set_logging(uint8_t arg_cnt, char **args) {
     if (strcmp(args[1], "off") == 0) {
       myDevice.logging = false;
     }
+    EEPROM.update(EE_logging, myDevice.logging);
+    EEPROM.update(EE_logInterval, myDevice.timer);
+  } else {
+    if (arg_cnt == 1) {
+      show_info(arg_cnt, args);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------
+//! \brief   Callback to configure initial dump or not
+//! \param   Argument count (int) and argument-list (char*) from Cmd.h
+//--------------------------------------------------------------------------------
+void set_initial_dump(uint8_t arg_cnt, char **args) {
+  if (arg_cnt == 1) {
+    if (strcmp(args[1], "on") == 0) {
+      myDevice.initialDump = true;
+    }
+    if (strcmp(args[1], "off") == 0) {
+      myDevice.initialDump = false;
+    }
+    EEPROM.update(EE_InitialDumpAll, myDevice.initialDump);
+  } else {
+    if (arg_cnt == 1) {
+      show_info(arg_cnt, args);
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------
+//! \brief   Callback to configure experimental data or not
+//! \param   Argument count (int) and argument-list (char*) from Cmd.h
+//--------------------------------------------------------------------------------
+void set_experimental(uint8_t arg_cnt, char **args) {
+  if (arg_cnt == 1) {
+    if (strcmp(args[1], "on") == 0) {
+      myDevice.experimental = true;
+    }
+    if (strcmp(args[1], "off") == 0) {
+      myDevice.experimental = false;
+    }
+    EEPROM.update(EE_Experimental, myDevice.experimental);
   } else {
     if (arg_cnt == 1) {
       show_info(arg_cnt, args);
@@ -253,6 +324,7 @@ void init_cmd_prompt() {
 //! \param   Argument count (int) and argument-list (char*) from Cmd.h
 //--------------------------------------------------------------------------------
 void main_menu (uint8_t arg_cnt, char **args) {
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
   myDevice.menu = MAIN;
   init_cmd_prompt();
 }
@@ -340,11 +412,22 @@ void cs_sub (uint8_t arg_cnt, char **args) {
 }
 
 //--------------------------------------------------------------------------------
+//! \brief   Callback to program factory defaults into the EEPROM
+//! \param   Argument count (int) and argument-list (char*) from Cmd.h
+//--------------------------------------------------------------------------------
+void reset_factory_defaults(uint8_t arg_cnt, char **args)
+{
+  (void) arg_cnt, (void) args;  // avoid -Wunusedparameter warning
+  ReadGlobalConfig(&myDevice, true);
+}
+
+//--------------------------------------------------------------------------------
 //! \brief   Funcion to check if the VIN in the battery compares to myVIN def.
 //! \return  report status / if present (boolean)
 //--------------------------------------------------------------------------------
 boolean test_BattVIN() {
   BMS.fHAL =  DiagCAN.getBatteryVIN(&BMS, false);
+  //DiagCAN.getCarVIN(&BMS, true);
   return BMS.fHAL;
 }
 
