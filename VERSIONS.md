@@ -3,6 +3,7 @@
 |-------- | --------|
 |v1.0.5   | Internal:|
 |         | ... Eliminate compiler warnings throughout the code. Two warnings remain, but are in the EEPROM library|
+|         | (2018-09) added case design and STL files for 3D printing|
 |v1.0.4   | Feature:|
 |         | ... When battery SOH flags show "DEGRADED", output individual flags|
 |v1.0.3   | Small improvement:|

@@ -7,13 +7,10 @@
 
 Retrieve battery diagnostic data from your smart electric drive EV. Get a Status Report to rate the health of the battery or dig into more detailed measurements.  
 
->**Further documentation in the [Wiki](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki).**
-
->**The development is now basically finished with the final release of v1.0.5 .**  
-
->**The software will only work on the third generation Smart electric drive vehicle build from late 2012 to mid 2015.**
-
->**You can buy a pre-assembled version of this tool. More information [here](http://www.sokoloff.com/smart451ED-BMS/).**
+>**Further documentation in the [Wiki](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki) !**  
+**The development is now basically finished with the final release of v1.0.5 .**  
+**The software will only work on the third generation Smart electric drive vehicle build from late 2012 to mid 2015.**  
+**You can buy a pre-assembled version of this tool. More information [here](http://www.sokoloff.com/smart451ED-BMS/) on Jim's page.**
 
 ---
 
@@ -35,9 +32,7 @@ Get the hardware and use an appropriate cable for the physical connection. See t
 
 * **Find detailed installation instructions in: [english](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation) | [german](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation_DE).**
 
-> **Verified to work with Arduino IDE 1.8.4 (on OS X 10.12 and WIN-Systems)**
-
-> **Verified to work with Arduino IDE 1.8.5 (on OS X 10.13)**
+> **Verified to work with Arduino IDE 1.8.7 (on OS X 10.13 and WIN-Systems)**
 
 ## Usage >on your own risk<
 Connect the CAN shield to the OBDII-connector and power up the car.
@@ -56,6 +51,7 @@ This simple tool will display the diagnostics via a serial USB connection. The r
 |-------- | --------|
 |v1.0.5   | Internal:|
 |         | ... Eliminate compiler warnings throughout the code. Two warnings remain, but are in the EEPROM library|
+|         | (2018-09) added case design and STL files for 3D printing|
 |v1.0.4   | Feature:|
 |         | ... When battery SOH flags show "DEGRADED", output individual flags|
 |v1.0.3   | Small improvement:|
