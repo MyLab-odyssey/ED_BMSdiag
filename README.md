@@ -1,7 +1,7 @@
 # ED BMSdiag
 
 [![version](https://img.shields.io/badge/version-v1.0.5-blue.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/archive/master.zip)
-[![version](https://img.shields.io/badge/issues-none-brightgreen.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/issues)
+[![version](https://img.shields.io/badge/issues-1-red.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/issues)
 [![release](https://img.shields.io/badge/release-v1.0.5-brightgreen.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/releases)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/MyLab-odyssey/ED_BMSdiag/blob/master/LICENSE.txt)
 
@@ -32,7 +32,7 @@ Get the hardware and use an appropriate cable for the physical connection. See t
 
 * **Find detailed installation instructions in: [english](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation) | [german](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation_DE).**
 
-> **Verified to work with Arduino IDE 1.8.5 (on OS X 10.13 and WIN-Systems), DO NOT USE 1.8.7 for versions > 1.0.1. There is currently a compiler problem within this Arduino IDE release**
+> **Verified to work with Arduino IDE 1.8.5 (on OS X 10.13 and WIN-Systems), DO NOT USE 1.8.7 for versions > 1.0.1. There is currently a [compiler problem](https://github.com/arduino/Arduino/issues/8014) within this Arduino IDE release!**
 
 ## Usage >on your own risk<
 Connect the CAN shield to the OBDII-connector and power up the car.
