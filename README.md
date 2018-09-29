@@ -32,7 +32,7 @@ Get the hardware and use an appropriate cable for the physical connection. See t
 
 * **Find detailed installation instructions in: [english](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation) | [german](https://github.com/MyLab-odyssey/ED_BMSdiag/wiki/Installation_DE).**
 
-> **Verified to work with Arduino IDE 1.8.7 (on OS X 10.13 and WIN-Systems)**
+> **Verified to work with Arduino IDE 1.8.5 (on OS X 10.13 and WIN-Systems), DO NOT USE 1.8.7 for versions > 1.0.1. There is currently a compiler problem within this Arduino IDE release**
 
 ## Usage >on your own risk<
 Connect the CAN shield to the OBDII-connector and power up the car.
